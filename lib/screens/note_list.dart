@@ -55,14 +55,20 @@ class _NoteListState extends State<NoteList> {
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.yellow,
-              child: Icon(Icons.keyboard_arrow_right),
+              backgroundColor:
+                  getPriorityColor(this.noteList[position].priority),
+              child: getPriorityIcon(this.noteList[position].priority),
             ),
-            title: Text('Dummy Title', style: titleStyle),
-            subtitle: Text('Dummy Date'),
-            trailing: Icon(
-              Icons.delete,
-              color: Colors.grey,
+            title: Text(this.noteList[position].title, style: titleStyle),
+            subtitle: Text(this.noteList[position].date),
+            trailing: GestureDetector(
+              child: Icon(
+                Icons.delete,
+                color: Colors.grey,
+              ),
+              onTap: () {
+                _delete(context, noteList[position]);
+              },
             ),
             onTap: () {
               debugPrint("lst_title tapped");
@@ -101,7 +107,7 @@ class _NoteListState extends State<NoteList> {
     }
   }
 
-  void delete(BuildContext context, Note note) async {
+  void _delete(BuildContext context, Note note) async {
     int result = await databaseHelper.deleteNote(note.id);
     if (result != 0) {
       _showSnackbar(context, 'Note deleted successfully!');
@@ -109,8 +115,8 @@ class _NoteListState extends State<NoteList> {
   }
 
   void _showSnackbar(BuildContext context, String message) {
-    final snackbar = SnackBar(content: Text(message));
-    Scaffold.of(context).showBodyScrim(snackbar);
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void navigateToDeatails(String title) {

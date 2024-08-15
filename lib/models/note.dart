@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqlite_app/screens/note_detail.dart';
 
 class Note {
   late int _id;
