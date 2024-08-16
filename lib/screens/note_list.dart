@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sqlite_app/screens/note_detail.dart';
-import 'package:sqflite/sqflite.dart';
-import 'dart:async';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'note_detail.dart';
 import 'package:sqlite_app/models/note.dart';
 import 'package:sqlite_app/utils/database_helper.dart';
 
@@ -20,26 +16,24 @@ class _NoteListState extends State<NoteList> {
   int count = 0;
   @override
   Widget build(BuildContext context) {
-    if (noteList == null) {
-      noteList = List<Note>();
-    }
+    noteList ??= <Note>[];
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 4, 103, 184),
-        title: Text(
+        title: const Text(
           'Notes',
           style: TextStyle(color: Colors.white),
         ),
       ),
       body: getNoteListview(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color.fromARGB(255, 104, 2, 127),
+        backgroundColor: const Color.fromARGB(255, 104, 2, 127),
         onPressed: () {
           debugPrint('FAB clicked');
           navigateToDeatails('Add Note');
         },
         tooltip: 'Add note',
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -55,14 +49,13 @@ class _NoteListState extends State<NoteList> {
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor:
-                  getPriorityColor(this.noteList[position].priority),
-              child: getPriorityIcon(this.noteList[position].priority),
+              backgroundColor: getPriorityColor(noteList[position].priority),
+              child: getPriorityIcon(noteList[position].priority),
             ),
-            title: Text(this.noteList[position].title, style: titleStyle),
-            subtitle: Text(this.noteList[position].date),
+            title: Text(noteList[position].title, style: titleStyle),
+            subtitle: Text(noteList[position].date),
             trailing: GestureDetector(
-              child: Icon(
+              child: const Icon(
                 Icons.delete,
                 color: Colors.grey,
               ),
@@ -96,14 +89,14 @@ class _NoteListState extends State<NoteList> {
   Icon getPriorityIcon(int priority) {
     switch (priority) {
       case 1:
-        return Icon(Icons.play_arrow);
+        return const Icon(Icons.play_arrow);
         break;
       case 2:
-        return Icon(Icons.keyboard_arrow_right);
+        return const Icon(Icons.keyboard_arrow_right);
         break;
 
       default:
-        return Icon(Icons.keyboard_arrow_right);
+        return const Icon(Icons.keyboard_arrow_right);
     }
   }
 

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sqlite_app/screens/note_detail.dart';
 import 'package:sqlite_app/screens/note_list.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: NoteList(),
+      home: const NoteList(),
     );
   }
 }

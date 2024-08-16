@@ -1,40 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:sqlite_app/models/note.dart';
 import 'package:path/path.dart';
 import 'package:sqlite_app/screens/note_detail.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqlite_app/models/note.dart';
+
 import 'package:sqlite_app/utils/database_helper.dart';
 
 class NoteDetail extends StatefulWidget {
   String appBarTitle;
-  NoteDetail(this.appBarTitle);
+
+  final Note note;
+  NoteDetail(this.note, this.appBarTitle, {super.key});
 
   // const NoteDetail({super.key});
   @override
-  State<NoteDetail> createState() => _NoteDetailState(this.appBarTitle);
+  State<NoteDetail> createState() =>
+      _NoteDetailState(this.note, this.appBarTitle);
 }
 
 class _NoteDetailState extends State<NoteDetail> {
   String appBarTitle;
+  Note note;
 
   static var _priorities = ['High', 'Low'];
+
+  DatabaseHelper helper = DatabaseHelper();
   TextEditingController titleControler = TextEditingController();
   TextEditingController descriptionControler = TextEditingController();
-  _NoteDetailState(this.appBarTitle);
+  _NoteDetailState(this.note, this.appBarTitle);
   @override
   Widget build(BuildContext context) {
     TextStyle? textStyle = Theme.of(context).textTheme.titleMedium;
 
+    titleControler.text = note.title;
+    descriptionControler.text = note.description;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 16, 247, 255),
+        backgroundColor: const Color.fromARGB(255, 16, 247, 255),
         title: Text(appBarTitle),
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
+        padding: const EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
         child: ListView(
           children: <Widget>[
             ListTile(
@@ -46,21 +56,23 @@ class _NoteDetailState extends State<NoteDetail> {
                   );
                 }).toList(),
                 style: textStyle,
-                value: 'Low',
+                value: getPriorityAsString(note.priority),
                 onChanged: (valueSelectionByUser) {
                   setState(() {
                     debugPrint('user selected $valueSelectionByUser');
+                    updatePriorityAsInt(valueSelectionByUser!);
                   });
                 },
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: TextField(
                 controller: titleControler,
                 style: textStyle,
                 onChanged: (value) {
                   debugPrint('Second chaned in Title text field');
+                  updateTitle();
                 },
                 decoration: InputDecoration(
                     labelText: 'Title',
@@ -70,12 +82,13 @@ class _NoteDetailState extends State<NoteDetail> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: TextField(
                 controller: descriptionControler,
                 style: textStyle,
                 onChanged: (value) {
                   debugPrint('changd in descretion text field.');
+                  updateDescription();
                 },
                 decoration: InputDecoration(
                     labelText: 'Descreption',
@@ -85,13 +98,13 @@ class _NoteDetailState extends State<NoteDetail> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: Row(
                 children: <Widget>[
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 25, 5, 248),
+                        backgroundColor: const Color.fromARGB(255, 25, 5, 248),
                         elevation: 5,
                         // textStyle: TextStyle(color: Colors.white),
                       ),
@@ -100,7 +113,7 @@ class _NoteDetailState extends State<NoteDetail> {
                           debugPrint('Saved button clicked');
                         });
                       },
-                      child: Text(
+                      child: const Text(
                         'save',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -110,7 +123,7 @@ class _NoteDetailState extends State<NoteDetail> {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 25, 5, 248),
+                        backgroundColor: const Color.fromARGB(255, 25, 5, 248),
                         elevation: 5,
                         // textStyle: TextStyle(color: Colors.white),
                       ),
@@ -119,7 +132,7 @@ class _NoteDetailState extends State<NoteDetail> {
                           debugPrint('Delete button clicked');
                         });
                       },
-                      child: Text(
+                      child: const Text(
                         'Delete',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -132,5 +145,51 @@ class _NoteDetailState extends State<NoteDetail> {
         ),
       ),
     );
+  }
+
+  // void noveToNextScreen() {
+  //   Navigator.pop(context);
+  // }
+
+  void updatePriorityAsInt(String value) {
+    switch (value) {
+      case 'High':
+        note.priority = 1;
+        break;
+      case 'Low':
+        note.priority = 2;
+        break;
+    }
+  }
+
+  String getPriorityAsString(int value) {
+    late String priority;
+    switch (value) {
+      case 1:
+        priority = _priorities[0];
+        break;
+      case 2:
+        priority = _priorities[1];
+        break;
+    }
+    return priority;
+  }
+
+  void updateTitle() {
+    note.title = titleControler.text;
+  }
+
+  void updateDescription() {
+    note.description = descriptionControler.text;
+  }
+
+  void _save() async {
+    int result;
+
+    if (note.id != null) {
+      result = await helper.updateNote(note);
+    } else {
+      result = await helper.insertNote(note);
+    }
   }
 }
